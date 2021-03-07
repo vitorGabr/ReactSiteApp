@@ -1,0 +1,33 @@
+#notFound{
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+#notFound > h1{
+    color: #dd2121;
+    font-weight: bolder;
+    line-height: 0.9em;
+    font-size: 15rem;
+    margin-bottom: 2%;
+}
+#notFound > h5{
+    color: white;
+    font-weight: bolder;
+    font-size: 1rem;
+    margin-bottom: 3%;
+}
+#notFound > a{
+    background-color: white;
+    text-decoration: none;
+    color: #000;
+    font-weight: bold;
+    padding: 1%;
+    border-radius: 10px;
+}
+#notFound > a:hover{
+    background-color: rgb(83, 82, 82);
+    color: white;
+}

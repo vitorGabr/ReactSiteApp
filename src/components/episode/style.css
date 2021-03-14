@@ -49,6 +49,10 @@
 #episodeSeason{
     color: white;
 }
+.swiper-slide{
+    width: auto !important;
+    margin-right: 2vh;
+}
 .btn{
     display: flex;
     align-items: center;

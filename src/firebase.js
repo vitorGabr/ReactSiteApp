@@ -25,6 +25,17 @@ export default new class Firebase{
         }
     }
 
+    async getAllSeries(){
+        let _data = [];
+        await app.firestore().collection('series')
+        .get().then((snapshot)=>{
+            snapshot.forEach(e=>{
+                _data.push(e.data());
+            })
+        })
+        return _data;
+    }
+
     async getSeries(_nameSerie){
         let _data = {}
         await app.firestore().collection('series')
@@ -32,7 +43,16 @@ export default new class Firebase{
         .get().then((snapshot)=>{
             _data = snapshot.data()
         })
+        
         return _data;
+    }
+
+    setSeasons(_nameSerie,_data){
+        app.firestore().collection('series')
+        .doc(_nameSerie)
+        .collection('episodes')
+        .doc()
+        .set(_data, { merge: true })   
     }
 
     async getEpisodes(_nameSerie){
@@ -48,7 +68,7 @@ export default new class Firebase{
             _data.push(..._listSnapshot);
             
         })
-        return _data;
+        return _data[0];
     }
 
 

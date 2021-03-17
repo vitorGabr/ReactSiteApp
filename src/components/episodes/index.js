@@ -35,7 +35,7 @@ export default function Episodes(props){
                     .find(_val => _val.episode_number == episode);
                     if(_episode){
                         const indexOf = seasonsFormated.indexOf(_episode);
-                        _data.episode = JSON.parse(sessionStorage.episodes)[indexOf];
+                        _data.episode = JSON.parse(sessionStorage.episodes).episodesDub[indexOf];
                         _data.episodeComplete = _episode;
                         _data.currentEp = episode;
                         _data.currentSeason = season;

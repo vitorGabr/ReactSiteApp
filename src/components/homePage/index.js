@@ -1,7 +1,7 @@
 import React, {useEffect,useState,useRef} from 'react';
 import firebase from '../../firebase';
 import { Link } from 'react-router-dom';
-import {Card} from '../style';
+import {Card, Img, Title} from '../style';
 import {LogoTitle} from '../style';
 import {HeroImage} from '../style';
 import {SeriesBox} from '../style';
@@ -24,6 +24,9 @@ import {MuiThemeProvider, createMuiTheme } from "@material-ui/core/styles";
 import Grid from '@material-ui/core/Grid';
 import  ModalSerie from './modal';
 import 'react-responsive-modal/styles.css';
+import NotFound from '../404';
+import Logo from '../../img/logo.png';
+import teste from '../../json';
 
 SwiperCore.use([Navigation, Pagination, Scrollbar, A11y]);
 
@@ -65,18 +68,17 @@ const theme = createMuiTheme({
     return windowSize;
   }
 
-export default function Homepage(){
+export default function Homepage(props){
 
     const [open, setOpen] = useState(false);
     const [modalSerie, setModalSerie] = useState('');
     const onOpenModal = () => setOpen(true);
-
-    const size = useWindowSize();
     const [data,setData] = useState({seasonSelected: 1});
     const [loading,setLoading] = useState(true);
     const [error,setError] = useState(false);
 
     useEffect(()=>{
+        //firebase.setSeasons('beauty_and_the_beast',{episodesDub:teste})
         const _result = async () => {
             setLoading(true);
             try {
@@ -87,7 +89,6 @@ export default function Homepage(){
                 var _data = data;
                 const allSeries = await firebase.getAllSeries();
                 const randomSerie = allSeries[Math.floor(Math.random() * allSeries.length)];
-                
                 const response = await axiosInstance.get(`${randomSerie.id}`,{params});
                 _data.history = getHistory();
                 _data.allSeries = allSeries;
@@ -116,22 +117,33 @@ export default function Homepage(){
     function hasHistory(_nameSerie){
         try {
             const history = data.history;
-           return history[_nameSerie][history[_nameSerie].length-1];
+            const max = history[_nameSerie].reduce(function(prev, current) {
+                return (prev.date > current.date) ? prev : current
+            }) 
+           return max;
         } catch (error) {
             return false;
         }
+    }
+
+    function progressBar(_ep){
+        let _progress = 0
+        const _epWatched = hasHistory(_ep);
+        if(_epWatched){
+            _progress = ((_epWatched.time*100) / (_epWatched.duration));
+        }
+        return _progress;
     }
 
     const handleClose = ()=>{
         setOpen(false);
     }
 
-    if(!error){
-        if(!loading){
+    if(!loading){
+        if(!error){
             return (
                 <Main>
-                    
-                    <LogoTitle>Moviee</LogoTitle>
+                    <LogoTitle Img={Logo}></LogoTitle>
                     <HeroImage image={data.randomSerie.image.banner}>
                         <Link to='' onClick={()=>{
                                     setModalSerie(data.randomSerie.name);
@@ -159,7 +171,7 @@ export default function Homepage(){
                             <MuiThemeProvider theme={theme}>
                                 <Grid item >
                                     <SizedBox width='100%' height='7px'/>
-                                    <ButtonGroup disableElevation variant="contained" color="primary" aria-label="contained primary button group">
+                                    <ButtonGroup disableElevation variant="contained" aria-label="contained primary button group">
                                         <Button onClick={()=>{
                                             setModalSerie(data.randomSerie.name);
                                             onOpenModal()
@@ -174,6 +186,8 @@ export default function Homepage(){
                     </HeroImage>
                     <BoxEpisodioAtual />
                     <SeriesBox>
+                        <Title weight='bold'>Todas as séries</Title>
+                        <SizedBox width='100%' height='1vh'/>
                         <Swiper
                            slidesPerView='auto'
                            navigation
@@ -199,18 +213,25 @@ export default function Homepage(){
                                 ))
                                 }
                             </Swiper>
-                        <SizedBox width='100%' height='5px'/>
+                        <SizedBox width='100%' height='2vh'/>
                     </SeriesBox>
                     <ModalSerie 
                         open={open}
                         name={modalSerie}
+                        history={props.history}
                         onCloseModal={handleClose}
                     >
                     </ModalSerie>
                 </Main>
             );
         }
-        return <h1>a</h1>
+        return (
+            <NotFound></NotFound>
+        )
     }
-    return <h1>a</h1>
+    return (
+        <SizedBox width='100%' height='100vh' flex='flex' flexContent='center' alignContent='center'>
+            <Img Img={Logo} width='40vh' />
+        </SizedBox>
+    )
 }

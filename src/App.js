@@ -8,6 +8,7 @@ import Serie from './components/serie';
 import Episodes from './components/episodes';
 import Homepage from './components/homePage';
 import Videoplayer from './components/videoPlayer';
+import Player from './components/player';
 
 export default class App extends Component{
 
@@ -19,7 +20,7 @@ export default class App extends Component{
           <Route exact path='/teste' component={Homepage} />
           <Route exact path='/episodio/:id' component={Episode} />
           <Route exact path='/:name' component={Serie} />
-          <Route exact path='/:name/:episode/' component={Videoplayer} />
+          <Route exact path='/:name/:episode/' component={Player} />
           <Route exact path='/*' component={notFound} />
         </Switch>
       </BrowserRouter>

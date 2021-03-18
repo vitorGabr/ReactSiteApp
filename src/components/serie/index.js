@@ -1,10 +1,11 @@
-import React, {useEffect,usedata, useState} from 'react';
+import React, {useEffect,useState} from 'react';
 import NotFound from '../404';
 import { Link } from 'react-router-dom';
 import Carousel from 'react-elastic-carousel'
 import api from '../../api';
 import axiosInstance from '../../axios';
 import firebase from '../../firebase'
+import json from '../../json'
 
 export default function Serie(props){
 
@@ -23,8 +24,8 @@ export default function Serie(props){
   function isWatched(episode,currentSeason,currentEpisode){
       try {
           const history = JSON.parse(episode)
-          return (history.filter(_item => _item.season == currentSeason)
-              .find(_item => _item.episode == currentEpisode));
+         return (history[props.match.params.name].filter(_item => _item.season == currentSeason)
+               .find(_item => _item.episode == currentEpisode));
       } catch (error) {
           return false;
       }
@@ -55,16 +56,17 @@ export default function Serie(props){
       try {
         const _serie = await firebase.getSeries(`${props.match.params.name}`);
         const _episodes = await firebase.getEpisodes(`${props.match.params.name}`);
+        console.log(_serie)
         if(_serie != null && _serie.length != 0){
           for (let index = 1; index <= _serie.seasons; index++) {
             params.append_to_response = `${params.append_to_response},season/${index}`;
           }
-          const _rep = await axiosInstance.get('1418',{params});
+          const _rep = await axiosInstance.get(`${_serie.id}`,{params});
           let seasonsFormatedPt = [];
           for (let index = 1; index <= _serie.seasons; index++) {
               seasonsFormatedPt.push(..._rep.data[`season/${index}`].episodes)
           }
-          const response = await api.get(`${_serie.id.replaceAll('_','-')}&embed=episodes`);
+          const response = await api.get(`${_serie.idMaze}?embed=episodes`);
           let data = {};
           let seasons = new Set(response.data._embedded.episodes.map(item => item.season))
           let seasonsFormated = response.data._embedded.episodes;
@@ -79,16 +81,15 @@ export default function Serie(props){
               .filter(_episode => _episode.season_number == localStorage.season)
               .find((_item)=>_item.episode_number == localStorage.episode)
           }else{
+              console.log(seasonsFormated);
               data.seasonCurrent = seasonsFormated[0]
               data.seasonCurrentPt = seasonsFormatedPt[0]
           }
-          sessionStorage.episodes = JSON.stringify((Object.values(_episodes[0])));
-          if(sessionStorage.getItem('seasonsFormatedPt') == null){
-              sessionStorage.setItem(
-                  'seasonsFormatedPt',
-                  JSON.stringify(seasonsFormatedPt)
-              )
-          }
+          sessionStorage.episodes = JSON.stringify(_episodes);
+          sessionStorage.setItem(
+            'seasonsFormatedPt',
+            JSON.stringify(seasonsFormatedPt)
+        )
           data.seasonCurrent.summary = data.seasonCurrent.summary.replace('<p>','').replace('</p>','');
           handleData(data);
         }else{
@@ -104,6 +105,10 @@ export default function Serie(props){
     _result();
   },[]);
 
+  async function setInFirebase(data){
+    await firebase.setSeasons('friends',data);
+  }
+
   if(!error){
     if(!loading){
       const {seasonsFormated} = data;
@@ -114,7 +119,7 @@ export default function Serie(props){
             </div>
             <Link id="episodioAtual"
                 style={{backgroundImage: `url(${data.seasonCurrent.image.original})`}}
-                to={`episodio/${data.seasonCurrent.season}x${data.seasonCurrent.number}`}
+                to={`${props.match.params.name}/${data.seasonCurrent.season}x${data.seasonCurrent.number}`}
             >
                 <h1>{`${data.seasonCurrent.number}. ${data.seasonCurrentPt.name}`}</h1>
                 <h5>{`${data.seasonCurrent.season}º Temporada`}</h5>
@@ -146,20 +151,34 @@ export default function Serie(props){
                                 filter(_episode => _episode.season == data.seasonSelected)
                                 .map((_value)=>(
                                     <div key = {_value.name} className="episodioDiv">
-                                        <Link to={{pathname:`episodio/${_value.season}x${_value.number}`}}
+                                        <Link to={{pathname:`${props.match.params.name}/${_value.season}x${_value.number}`}}
                                             className={`episodio  ${isWatched(localStorage.history,_value.season,_value.number)?'isWatched':''}`}
                                             style={{backgroundImage: `url(${_value.image.medium})`}}
                                         >
                                             {
                                                 isWatched(localStorage.history,_value.season,_value.number) ?
-                                                <div
-                                                    className='episodeProgress'
-                                                    style={
-                                                        {
-                                                            width: `${progressBar(localStorage.history,_value.season,_value.number)}%`
-                                                        }
-                                                    }>
-                                                </div>
+                                                    <div
+                                                        className='episodeProgress'
+                                                        style={
+                                                            {
+                                                                width: `${progressBar(localStorage.history,_value.season,_value.number)}%`
+                                                            }
+                                                        }>
+                                                    </div>
+                                                :
+                                                <div></div>
+
+                                            }
+                                            {
+                                                isWatched(localStorage.history,_value.season,_value.number) ?
+                                                    <div
+                                                        className='asdasdasd'
+                                                        style={
+                                                            {
+                                                                width: `${progressBar(localStorage.history,_value.season,_value.number)}%`
+                                                            }
+                                                        }>
+                                                    </div>
                                                 :
                                                 <div></div>
 
@@ -182,7 +201,7 @@ export default function Serie(props){
                                 filter(_episode => _episode.season == data.seasonSelected)
                                 .map((_value)=>(
                                     <div key = {_value.name} className="episodioDiv">
-                                        <Link to={{pathname:`episodio/${_value.season}x${_value.number}`}}
+                                        <Link to={{pathname:`${props.match.params.name}/${_value.season}x${_value.number}`}}
                                             className={`episodio  ${isWatched(localStorage.history,_value.season,_value.number)?'isWatched':''}`}
                                             style={{backgroundImage: `url(${_value.image.medium})`}}
                                         >

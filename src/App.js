@@ -5,6 +5,10 @@ import notFound from './components/404/index';
 import Home from './components/home';
 import Episode from './components/episode';
 import Serie from './components/serie';
+import Episodes from './components/episodes';
+import Homepage from './components/homePage';
+import Videoplayer from './components/videoPlayer';
+import Player from './components/player';
 
 export default class App extends Component{
 
@@ -12,10 +16,11 @@ export default class App extends Component{
     return(
       <BrowserRouter>
         <Switch>
-          <Route exact path='/' component={Home} />
+          <Route exact path='/' component={Homepage} />
+          <Route exact path='/teste' component={Homepage} />
           <Route exact path='/episodio/:id' component={Episode} />
           <Route exact path='/:name' component={Serie} />
-          {/* <Route exact path='/:name/:episode/' component={Serie} /> */}
+          <Route exact path='/:name/:episode/' component={Player} />
           <Route exact path='/*' component={notFound} />
         </Switch>
       </BrowserRouter>

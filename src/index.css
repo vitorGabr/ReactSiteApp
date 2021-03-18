@@ -8,14 +8,18 @@
 }
 body {
     width: 100%;
+    height: auto;
     margin: 0;
     padding: 0;
+    overflow: auto;
     background-color: rgba(20,20,20,1);
 }
 main{
     color: #fff;
     background-color: rgba(20,20,20,1);
     width: 100%;
+    height: auto;
+    overflow: auto;
 }
 :focus {
     outline: none !important;

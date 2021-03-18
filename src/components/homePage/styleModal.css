@@ -1,0 +1,20 @@
+.customModal {
+    background-color: rgb(20, 20, 20);
+    width: 100vw;
+    padding: 0;
+}
+.customModal{
+    margin:0;
+}
+@media(min-width: 990px) {
+    .customModal{
+        margin-top:2vh !important;
+    }
+}
+.customModal img{
+    width: 100%;
+    height: auto;
+}
+.react-responsive-modal-closeButton svg{
+    fill: white !important;
+}

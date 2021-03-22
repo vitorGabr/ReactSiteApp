@@ -2,7 +2,6 @@ import React, {useEffect,useState,useRef} from 'react';
 import firebase from '../../firebase';
 import { Link } from 'react-router-dom';
 import {Card, Img, Title} from '../style';
-import {LogoTitle} from '../style';
 import {HeroImage} from '../style';
 import {SeriesBox} from '../style';
 import {SizedBox} from '../style';
@@ -21,12 +20,11 @@ import Button from '@material-ui/core/Button';
 import PlayArrowOutlinedIcon from '@material-ui/icons/PlayArrowOutlined';
 import PlayCircleFilledWhiteOutlinedIcon from '@material-ui/icons/PlayCircleFilledWhiteOutlined';
 import {MuiThemeProvider, createMuiTheme } from "@material-ui/core/styles";
-import Grid from '@material-ui/core/Grid';
 import  ModalSerie from './modal';
 import 'react-responsive-modal/styles.css';
 import NotFound from '../404';
 import Logo from '../../img/logo.png';
-import teste from '../../json';
+import chuck from '../../json';
 
 SwiperCore.use([Navigation, Pagination, Scrollbar, A11y]);
 
@@ -78,7 +76,7 @@ export default function Homepage(props){
     const [error,setError] = useState(false);
 
     useEffect(()=>{
-        //firebase.setSeasons('beauty_and_the_beast',{episodesDub:teste})
+        //firebase.updateSeasons('reign',chuck);
         const _result = async () => {
             setLoading(true);
             try {
@@ -91,9 +89,20 @@ export default function Homepage(props){
                 const randomSerie = allSeries[Math.floor(Math.random() * allSeries.length)];
                 const response = await axiosInstance.get(`${randomSerie.id}`,{params});
                 _data.history = getHistory();
+                _data.historyFormated = [];
                 _data.allSeries = allSeries;
                 _data.randomSerie = randomSerie;
                 _data.randomSerieComplete = response.data;
+                allSeries.forEach(_item => {
+                    if(_data.history[_item.name]){
+                        _data.historyFormated.push(_item)
+                    }
+                })
+                if(props.match.params.name && 
+                    allSeries.find(_item => _item.name == props.match.params.name)){
+                    setModalSerie(props.match.params.name);
+                    setOpen(true);
+                }
                 setData(_data);
             } catch (error) {
                 setError(true);
@@ -137,40 +146,60 @@ export default function Homepage(props){
 
     const handleClose = ()=>{
         setOpen(false);
+        props.history.push({pathname:`/`})
     }
 
     if(!loading){
         if(!error){
             return (
                 <Main>
-                    <LogoTitle Img={Logo}></LogoTitle>
+                    <SizedBox 
+                        width='100%' 
+                        flex='flex' 
+                        flexContent='space-between' 
+                        alignContent='center'
+                        position='absolute'
+                        padding='1%'
+                        >
+                        <Img Img={Logo} width='30vh' />
+                    </SizedBox>
                     <HeroImage image={data.randomSerie.image.banner}>
                         <Link to='' onClick={()=>{
                                     setModalSerie(data.randomSerie.name);
                                     onOpenModal()
                                 }}>
-                            <h1>{`${data.randomSerie.name.replaceAll('_',' ')}`}</h1>
-                            <div>
-                                {
-                                    data.randomSerieComplete.genres.map(_item=>(
-                                    <p key={Math.random()} className='genres'>{_item.name}</p>   
-                                    ))  
-                                }
-                            </div>
-                            <ReactStars
-                                count={5}
-                                value={5/10 * data.randomSerieComplete.vote_average}
-                                edit={false}
-                                size={24}
-                                isHalf={true}
-                                activeColor="red"
-                            />
-                            <p>
-                                {data.randomSerieComplete.overview}
-                            </p>
-                            <MuiThemeProvider theme={theme}>
-                                <Grid item >
-                                    <SizedBox width='100%' height='7px'/>
+                            <SizedBox
+                               flex='flex' 
+                               
+                               flexDirection='column'
+                               flexContent='space-between' 
+                               alignContent='center'
+                               position='absolute' 
+                            >
+                                <Title
+                                    size='2.8rem'
+                                    weight='bold'
+                                >{`${data.randomSerie.name.replaceAll('_',' ')}`}</Title>
+                                <div>
+                                    {
+                                        data.randomSerieComplete.genres.map(_item=>(
+                                        <p key={Math.random()} className='genres'>{_item.name}</p>   
+                                        ))  
+                                    }
+                                </div>
+                                <ReactStars
+                                    count={5}
+                                    value={5/10 * data.randomSerieComplete.vote_average}
+                                    edit={false}
+                                    size={24}
+                                    isHalf={true}
+                                    activeColor="red"
+                                />
+                                <p>
+                                    {data.randomSerieComplete.overview}
+                                </p>
+                                <MuiThemeProvider theme={theme}>
+                                    <SizedBox height='1vh'/>
                                     <ButtonGroup disableElevation variant="contained" aria-label="contained primary button group">
                                         <Button onClick={()=>{
                                             setModalSerie(data.randomSerie.name);
@@ -180,12 +209,48 @@ export default function Homepage(props){
                                             Assistir
                                         </Button>
                                     </ButtonGroup>
-                                </Grid>
-                            </MuiThemeProvider>
+                                </MuiThemeProvider>
+                            </SizedBox>
                         </Link>
                     </HeroImage>
                     <BoxEpisodioAtual />
                     <SeriesBox>
+                        {   
+                            Object.keys(data.history).length !== 0 ?
+                            <>
+                                <Title weight='bold'>Assitido por você</Title>
+                                <SizedBox width='100%' height='1vh'/>
+                                <Swiper
+                                slidesPerView='auto'
+                                navigation
+                                    >
+                                    {
+                                        data.historyFormated
+                                        .map((_value)=>(
+                                            <SwiperSlide key = {Math.random()} >
+                                                <Link to={`${_value.name}`}>
+                                                    <Card image={_value.image} onClick={()=>{
+                                                            props.history.push(`${_value.name}`)
+                                                            setModalSerie(_value.name);
+                                                            onOpenModal()
+                                                        }}>
+                                                        <img src={_value.image.original}></img>
+                                                        {hasHistory(_value.name) ? 
+                                                        <div>
+                                                            <PlayCircleFilledWhiteOutlinedIcon/>
+                                                            <h4>{`T${hasHistory(_value.name).season} E${hasHistory(_value.name).episode}`}</h4>
+                                                        </div> : <></>}
+                                                    </Card>
+                                                </Link>
+                                            </SwiperSlide>
+                                        ))
+                                        }
+                                    </Swiper>
+                                    <SizedBox width='100%' height='20px'/>
+                            </>
+                            :<SizedBox></SizedBox>
+                        }
+                        
                         <Title weight='bold'>Todas as séries</Title>
                         <SizedBox width='100%' height='1vh'/>
                         <Swiper
@@ -196,24 +261,24 @@ export default function Homepage(props){
                                 data.allSeries
                                 .map((_value)=>(
                                     <SwiperSlide key = {Math.random()} >
-                                        <Card image={_value.image} onClick={()=>{
-                                                setModalSerie(_value.name);
-                                                onOpenModal()
-                                            }}>
-                                            <Link to='' >
+                                        <Link to={`${_value.name}`}>
+                                            <Card image={_value.image} onClick={()=>{
+                                                    props.history.push(`${_value.name}`)
+                                                    setModalSerie(_value.name);
+                                                    onOpenModal()
+                                                }}>
                                                 <img src={_value.image.original}></img>
-                                            </Link>
-                                            {hasHistory(_value.name) ? 
-                                            <div>
-                                                <PlayCircleFilledWhiteOutlinedIcon/>
-                                                <h4>{`T${hasHistory(_value.name).season} E${hasHistory(_value.name).episode}`}</h4>
-                                            </div> : <></>}
-                                        </Card>
+                                                {hasHistory(_value.name) ? 
+                                                <div>
+                                                    <PlayCircleFilledWhiteOutlinedIcon/>
+                                                    <h4>{`T${hasHistory(_value.name).season} E${hasHistory(_value.name).episode}`}</h4>
+                                                </div> : <></>}
+                                            </Card>
+                                        </Link>
                                     </SwiperSlide>
                                 ))
                                 }
                             </Swiper>
-                        <SizedBox width='100%' height='2vh'/>
                     </SeriesBox>
                     <ModalSerie 
                         open={open}

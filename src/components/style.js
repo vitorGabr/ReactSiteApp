@@ -20,6 +20,11 @@ export const SizedBox = styled.div`
     align-items:${props => `${props.alignContent}`};
     flex-direction:${props => `${props.flexDirection}`};
     flex-wrap:${props => `${props.flexWrap}`};
+    position:${props => `${props.position}`};
+    top:${props => `${props.top}`};
+    left:${props => `${props.left}`};
+    right:${props => `${props.right}`};
+    bottom:${props => `${props.bottom}`};
 `;
 export const PlayerBack = styled(SizedBox)`
     display:flex;
@@ -141,10 +146,18 @@ export const HeroImage = styled.div`
         }
         background-color: rgba(0,0,0,0.7);
         display:flex;
-        div:not(.react-stars-wrapper-0578260352001738){
-            p{
-                width:auto;
+        > ${SizedBox}{
+            z-index:15;
+            width:50vw !important;
+            margin-bottom:5%;
+            @media(max-width: 990px){
+                h2{
+                    font-size: 2.3rem;
+                }
+                width:80vw !important;
             }
+        }
+        div:not(.react-stars-wrapper-0578260352001738){
             .genres{
                 padding-right:1%;
             }
@@ -155,7 +168,6 @@ export const HeroImage = styled.div`
             flex-wrap:wrap;
         }
         p{
-            width:50%;
             font-size:0.9rem;
             font-weight:bold;
             display: -webkit-box;
@@ -172,8 +184,8 @@ export const BoxEpisodioAtual = styled.div`
     background-image: linear-gradient(
         to bottom,rgba(20,20,20,0) 0%,rgba(20,20,20,.15) 29%,rgba(20,20,20,.35) 44%,rgba(20,20,20,.58) 50%,#141414 68%,#141414 100%);
     width: 100%;
-    height: 35vh;
-    bottom: 0;
+    height: 40vh;
+    bottom: -1vh;
     z-index: 8;
     position: absolute;
     opacity: 1;
@@ -190,11 +202,8 @@ export const ModalEpisodioAtual = styled(BoxEpisodioAtual)`
         
 `;
 export const SeriesBox = styled.div`
-    top: 80vh;
-    @media(max-width: 500px) {
-        top:70vh;
-    }
-    height:30vh;
+    top:75vh;
+    padding-bottom:2vh;
     position: absolute;
     z-index: 9;
     width: 100%;
@@ -240,6 +249,7 @@ export const Center = styled.div`
 export const Card = styled.div`
     width: 100%;
     height:30vh;
+    
     cursor: pointer;
     position:relative;
     @media(max-width: 990px) {
@@ -254,6 +264,7 @@ export const Card = styled.div`
         justify-content:center;
         flex-direction:column;
         width:100%;
+        color:white;
         border-radius: 5px;
         background-color:rgba(0,0,0,0.5);
         &:hover{
@@ -269,15 +280,11 @@ export const Card = styled.div`
             font-weight:normal;
         }
     }
-    a{
-        
-        img{
+    img{
             height: 100%;
             width:auto;
             border-radius: 5px;
         }
-
-    }
     &:hover{
         img{
             border:solid white;
@@ -292,8 +299,13 @@ export const ModalHero = styled.div`
     border-radius: 5px;
     background-size:cover;
     display:flex;
+    > ${SizedBox}{
+        width:100%;
+        height:60vh;
+        
+    }
     button{
-        position: absolute;
+        
         display:flex;
         align-items:center;
         justify-content:center;
@@ -301,8 +313,6 @@ export const ModalHero = styled.div`
         border-radius: 5px;
         padding:1% 2%;
         background-color: white;//#d40808;
-        top:40vh;
-        left:5vh;
         color: black;
         height: 5.5vh;
         svg{
@@ -314,15 +324,12 @@ export const ModalHero = styled.div`
     }
 `;
 export const ContainerStyles = styled.div`
-    position: absolute;
-    left:-3vh;
     max-width: 25vh;
-    top:30vh;
     height: 3px;
     width: 100%;
     background-color: #7d7d7d;
     border-radius: 50px;
-    margin: 50px;
+    margin-right: 10px;
 `
 export  const FillerStyless = styled.div`
     height: 100%;

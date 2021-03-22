@@ -172,6 +172,7 @@ export default function Player(props){
         localStorage.setItem('episode',episode);
         localStorage.setItem('season',season);
         let getHistory = {};
+        console.log('asdasd')
         let _jsonParsse = {};
         try {
             _jsonParsse = JSON.parse(localStorage.history);
@@ -246,6 +247,7 @@ export default function Player(props){
     function handleSeek(){
         var _data = data;
         if(isToseek()){
+            console.log('asdasd')
             let _jsonParsse;
             try {
                 _jsonParsse = JSON.parse(localStorage.history);
@@ -260,12 +262,14 @@ export default function Player(props){
                     if(!(_findHistory.duration - _findHistory.time <= 50)){
                         player.seekTo(parseFloat(_findHistory.time))
                     }
+                    
                     _data.seeking = false; 
                 }else{
                     _data.seeking = false; 
                 }
             }
         }
+        _data.seeking = false;
         setData({..._data})
     }
 
@@ -278,7 +282,7 @@ export default function Player(props){
           return(
             <PlayerContent>
                 <PlayerBack>
-                    <Link to={`/`}>
+                    <Link to={`/${props.match.params.name}`}>
                         <span className="material-icons">
                             arrow_back
                         </span>

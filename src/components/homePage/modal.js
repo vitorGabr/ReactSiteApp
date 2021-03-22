@@ -14,10 +14,7 @@ import PlayArrowOutlinedIcon from '@material-ui/icons/PlayArrowOutlined';
 import './styleModal.css';
 import ProgressBar from './progressBar';
 import { makeStyles } from '@material-ui/core/styles';
-import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
-import FormHelperText from '@material-ui/core/FormHelperText';
-import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 
 const useStyles = makeStyles((theme) => ({
@@ -124,6 +121,14 @@ const format = (seconds) => {
         }
     }
 
+    function checkIsEmpty(_item,_value){
+        const indexOf = data.seasonsFormated.indexOf(_item);
+        if(_value == null){
+            return `https://www.themoviedb.org/t/p/original${data.seasonsFormatedPt[indexOf].still_path}`;
+        }
+        return _value.medium;
+    }
+
     useEffect(()=>{
         let params = {
             api_key: process.env.REACT_APP_API_KEY,
@@ -154,7 +159,6 @@ const format = (seconds) => {
                     data.seasons = Array.from(seasons);
                     data.serie = _serie;
                     const _hasHistory = hasHistory(name);
-                    console.log(name);
                     if(_hasHistory){
                         data.seasonCurrent = seasonsFormated
                             .filter(_episode => _episode.season == _hasHistory.season)
@@ -191,36 +195,54 @@ const format = (seconds) => {
                 open={open} 
                 onClose={onCloseModal} 
                 closeOnEsc={true}
+                onOverlayClick={()=>{
+                    history.push({pathname:`/`})
+                }}
                 classNames={{
                     modal: 'customModal',
                 }}
                 >
                 <ModalHero image={`https://www.themoviedb.org/t/p/original${data.seasonCurrentPt.still_path}`}>
-                    <SizedBox width='40vh' margin='22vh 0 0 4vh'>
-                        <img src={data.serie.image.logo}></img>
-                    </SizedBox>
-                    {
-                        isWatched(data.seasonCurrent.season,data.seasonCurrent.number) ?
-                            <SizedBox flex='flex' margin='36.2vh 0 0 -12vh'>
-                                <ProgressBar completed= {progressBar(data.seasonCurrent.season,data.seasonCurrent.number)} />
-                                <Title color='#e8e8e8' size='1rem' weight='bold'>{`${format(
-                                        isWatched(data.seasonCurrent.season,data.seasonCurrent.number).time
-                                )} de ${format(
-                                    isWatched(data.seasonCurrent.season,data.seasonCurrent.number).duration
-                            )}`}</Title>
-                            </SizedBox>
-                        :
-                        <div></div>
+                    <SizedBox 
+                        flex='flex' 
+                        flexDirection='column'
+                        position= 'absolute'
+                        alignContent='flex-start'
+                        flexContent='center'
+                        padding='0 2%'
+                        >
+                        <SizedBox width='30vh'>
+                            <img src={data.serie.image.logo}></img>
+                        </SizedBox>
+                        {
+                            isWatched(data.seasonCurrent.season,data.seasonCurrent.number) ?
+                                <SizedBox 
+                                    flex='flex' 
+                                    width='100%' 
+                                    alignContent='center' 
+                                    flexContent='flex-start'
+                                    >
+                                    <ProgressBar completed= {progressBar(data.seasonCurrent.season,data.seasonCurrent.number)} />
+                                    <Title color='#e8e8e8' size='1rem' weight='bold'>{`${format(
+                                            isWatched(data.seasonCurrent.season,data.seasonCurrent.number).time
+                                    )} de ${format(
+                                        isWatched(data.seasonCurrent.season,data.seasonCurrent.number).duration
+                                )}`}</Title>
+                                </SizedBox>
+                            :
+                            <div></div>
 
-                    }
-                    <ButtonGroup variant="contained"aria-label="contained primary button group">
-                        <Button onClick={()=>{
-                            history.push({pathname:`${name}/${data.seasonCurrent.season}x${data.seasonCurrent.number}`})
-                        }}>
-                            <PlayArrowOutlinedIcon fontSize="default" />
-                            Assistir
-                        </Button>
-                    </ButtonGroup>
+                        }
+                        <SizedBox height='1vh' />
+                        <ButtonGroup variant="contained"aria-label="contained primary button group">
+                            <Button onClick={()=>{
+                                history.push({pathname:`${name}/${data.seasonCurrent.season}x${data.seasonCurrent.number}`})
+                            }}>
+                                <PlayArrowOutlinedIcon fontSize="default" />
+                                Assistir
+                            </Button>
+                        </ButtonGroup>
+                    </SizedBox>
 
                 </ModalHero>
                 <ModalEpisodioAtual></ModalEpisodioAtual>
@@ -275,7 +297,7 @@ const format = (seconds) => {
                                 className={`${isWatched(_value.season,_value.number)?'isWatched':''}`}
                             >
                                 <div>
-                                    <img src={_value.image.medium} />
+                                    <img src={checkIsEmpty(_value,_value.image)} />
                                     {
                                         isWatched(_value.season,_value.number) ?
                                             <EpisodeProgress value={progressBar(_value.season,_value.number)} />

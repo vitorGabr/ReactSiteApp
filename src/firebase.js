@@ -51,8 +51,16 @@ export default new class Firebase{
         app.firestore().collection('series')
         .doc(_nameSerie)
         .collection('episodes')
-        .doc()
+        .doc('episodes')
         .set(_data, { merge: true })   
+    }
+
+    updateSeasons(_nameSerie,_data){
+        app.firestore().collection('series')
+        .doc(_nameSerie)
+        .collection('episodes')
+        .doc('episodes')
+        .update({episodesDub: app.firestore.FieldValue.arrayUnion(..._data)})   
     }
 
     async getEpisodes(_nameSerie){

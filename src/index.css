@@ -23,3 +23,16 @@ main{
 :focus {
     outline: none !important;
 }
+.swiper-button-next{
+    color: #dd2121  !important;
+}
+.swiper-button-prev{
+    color: #dd2121  !important;
+}
+.swiper-button-disabled{
+    color: #000 !important;
+}
+.swiper-slide{
+    width: auto !important;
+    margin-right: 2vh;
+}

@@ -272,21 +272,6 @@ const format = (seconds) => {
                                     ))
                                 }
                             </Select>
-                        {/* <select id="temporada"
-                                value={data.seasonSelected}
-                                onChange={handleChange}>
-                                {
-                                    data.seasons
-                                    .map((_value)=>(
-                                        <option
-                                            value={_value}
-                                            key={_value}
-                                        >
-                                            {`${_value}º Temporada`}
-                                        </option>
-                                    ))
-                                }
-                            </select> */}
                     </SizedBox>
                     <hr></hr>
                     {

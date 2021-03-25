@@ -1,7 +1,7 @@
 import React, {useEffect,useState,useRef} from 'react';
 import firebase from '../../firebase';
 import { Link } from 'react-router-dom';
-import {Card, Img, Title} from '../style';
+import {Card, EpisodeProgress, Img, Title} from '../style';
 import {HeroImage} from '../style';
 import {SeriesBox} from '../style';
 import {SizedBox} from '../style';
@@ -76,7 +76,7 @@ export default function Homepage(props){
     const [error,setError] = useState(false);
 
     useEffect(()=>{
-        //firebase.updateSeasons('reign',chuck);
+        //firebase.setSeasons('revenge',{episodesDub:chuck});
         const _result = async () => {
             setLoading(true);
             try {
@@ -93,6 +93,12 @@ export default function Homepage(props){
                 _data.allSeries = allSeries;
                 _data.randomSerie = randomSerie;
                 _data.randomSerieComplete = response.data;
+                var genres = [];
+                allSeries.map(_item => {
+                    genres.push(..._item.genres)
+                });
+                genres = Array.from(new Set(genres));
+                _data.genres = genres;
                 allSeries.forEach(_item => {
                     if(_data.history[_item.name]){
                         _data.historyFormated.push(_item)
@@ -142,6 +148,17 @@ export default function Homepage(props){
             _progress = ((_epWatched.time*100) / (_epWatched.duration));
         }
         return _progress;
+    }
+
+    function filteByGenres(genres){
+        var _series = [];
+        data.allSeries.map(_item => {
+            const findGenres = _item.genres.find(_value => _value == genres);
+            if(findGenres){
+                _series.push(_item)
+            }
+        })
+        return _series;
     }
 
     const handleClose = ()=>{
@@ -251,34 +268,35 @@ export default function Homepage(props){
                             :<SizedBox></SizedBox>
                         }
                         
-                        <Title weight='bold'>Todas as séries</Title>
-                        <SizedBox width='100%' height='1vh'/>
-                        <Swiper
-                           slidesPerView='auto'
-                           navigation
-                            >
-                            {
-                                data.allSeries
-                                .map((_value)=>(
-                                    <SwiperSlide key = {Math.random()} >
-                                        <Link to={`${_value.name}`}>
-                                            <Card image={_value.image} onClick={()=>{
-                                                    props.history.push(`${_value.name}`)
-                                                    setModalSerie(_value.name);
-                                                    onOpenModal()
-                                                }}>
-                                                <img src={_value.image.original}></img>
-                                                {hasHistory(_value.name) ? 
-                                                <div>
-                                                    <PlayCircleFilledWhiteOutlinedIcon/>
-                                                    <h4>{`T${hasHistory(_value.name).season} E${hasHistory(_value.name).episode}`}</h4>
-                                                </div> : <></>}
-                                            </Card>
-                                        </Link>
-                                    </SwiperSlide>
-                                ))
-                                }
-                            </Swiper>
+                        {
+                            data.genres.map(_value => (
+                                <div key = {Math.random()}>
+                                    < Title weight='bold' >{_value}</Title>
+                                    <SizedBox width='100%' height='1vh'/>
+                                    <Swiper
+                                        slidesPerView='auto'
+                                        navigation
+                                    >
+                                        {
+                                            filteByGenres(_value).map(_item => (
+                                                <SwiperSlide key = {Math.random()} >
+                                                    <Link to={`${_item.name}`}>
+                                                        <Card image={_item.image} onClick={()=>{
+                                                                props.history.push(`${_item.name}`)
+                                                                setModalSerie(_item.name);
+                                                                onOpenModal()
+                                                            }}>
+                                                            <img src={_item.image.original}></img>
+                                                        </Card>
+                                                    </Link>
+                                                </SwiperSlide>
+                                            ))
+                                        }
+                                    </Swiper>
+                                    <SizedBox width='100%' height='5vh'/>
+                                </div>
+                            ))
+                        }
                     </SeriesBox>
                     <ModalSerie 
                         open={open}

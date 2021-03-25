@@ -249,7 +249,6 @@ export const Center = styled.div`
 export const Card = styled.div`
     width: 100%;
     height:30vh;
-    
     cursor: pointer;
     position:relative;
     @media(max-width: 990px) {
@@ -277,7 +276,7 @@ export const Card = styled.div`
         h4{
             position:absolute;
             bottom:0;
-            font-weight:normal;
+            font-weight:bold;
         }
     }
     img{
@@ -341,7 +340,7 @@ export  const EpisodeProgress = styled.div`
     bottom:0;
     left:0;
     height: 1px !important;
-    color: red;
+    color: red !important;
     border-top: 4px solid;
     width: ${props => `${props.value}% !important`};
 `

@@ -1,14 +1,9 @@
 import React, {Component,useState} from 'react';
 
 import {BrowserRouter, Switch, Route} from 'react-router-dom';
-import notFound from './components/404/index';
-import Home from './components/home';
-import Episode from './components/episode';
-import Serie from './components/serie';
-import Episodes from './components/episodes';
 import Homepage from './components/homePage';
-import Videoplayer from './components/videoPlayer';
 import Player from './components/player';
+import notFound from './components/404/index';
 
 export default class App extends Component{
 
@@ -18,7 +13,6 @@ export default class App extends Component{
         <Switch>
           <Route exact path='/' component={Homepage} />
           <Route exact path='/teste' component={Homepage} />
-          <Route exact path='/episodio/:id' component={Episode} />
           <Route exact path='/:name' component={Homepage} />
           <Route exact path='/:name/:episode/' component={Player} />
           <Route exact path='/*' component={notFound} />

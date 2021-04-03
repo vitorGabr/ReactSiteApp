@@ -172,7 +172,6 @@ export default function Player(props){
         localStorage.setItem('episode',episode);
         localStorage.setItem('season',season);
         let getHistory = {};
-        console.log('asdasd')
         let _jsonParsse = {};
         try {
             _jsonParsse = JSON.parse(localStorage.history);
@@ -247,7 +246,6 @@ export default function Player(props){
     function handleSeek(){
         var _data = data;
         if(isToseek()){
-            console.log('asdasd')
             let _jsonParsse;
             try {
                 _jsonParsse = JSON.parse(localStorage.history);
@@ -286,10 +284,10 @@ export default function Player(props){
                         <span className="material-icons">
                             arrow_back
                         </span>
+                        <Title >Voltar</Title>
                     </Link>
-                    <Title >Voltar</Title>
                 </PlayerBack>
-                <SizedBox margin='2% 0'></SizedBox>
+                <SizedBox margin='2vh 0'></SizedBox>
                 <PlayerInfoContent>
                     <SizedBox width='100%' flex='flex' flexContent='center' alignContent='center'>
                         <ReactPlayer

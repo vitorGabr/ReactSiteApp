@@ -19,12 +19,15 @@ import ButtonGroup from '@material-ui/core/ButtonGroup';
 import Button from '@material-ui/core/Button';
 import PlayArrowOutlinedIcon from '@material-ui/icons/PlayArrowOutlined';
 import PlayCircleFilledWhiteOutlinedIcon from '@material-ui/icons/PlayCircleFilledWhiteOutlined';
-import {MuiThemeProvider, createMuiTheme } from "@material-ui/core/styles";
+import {MuiThemeProvider, createMuiTheme,withStyles } from "@material-ui/core/styles";
+import IconButton from '@material-ui/core/IconButton';
+import SearchIcon from '@material-ui/icons/Search';
 import  ModalSerie from './modal';
 import 'react-responsive-modal/styles.css';
 import NotFound from '../404';
 import Logo from '../../img/logo.png';
 import chuck from '../../json';
+import Menu from '../menu';
 
 SwiperCore.use([Navigation, Pagination, Scrollbar, A11y]);
 
@@ -66,6 +69,19 @@ const theme = createMuiTheme({
     return windowSize;
   }
 
+  const ColorButton = withStyles((theme) => ({
+    root: {
+      color: 'white',
+    },
+  }))(Button);
+
+  const IconPlayButton = withStyles((theme) => ({
+    root: {
+      color: 'white',
+      textTransform:'none'
+    },
+  }))(IconButton);
+
 export default function Homepage(props){
 
     const [open, setOpen] = useState(false);
@@ -76,7 +92,7 @@ export default function Homepage(props){
     const [error,setError] = useState(false);
 
     useEffect(()=>{
-        //firebase.setSeasons('revenge',{episodesDub:chuck});
+        //firebase.setSeasons('my_wife_and_kids',{episodesDub:chuck});
         const _result = async () => {
             setLoading(true);
             try {
@@ -99,9 +115,27 @@ export default function Homepage(props){
                 });
                 genres = Array.from(new Set(genres));
                 _data.genres = genres;
-                allSeries.forEach(_item => {
-                    if(_data.history[_item.name]){
-                        _data.historyFormated.push(_item)
+                var sort = [];
+                Object.keys(_data.history).map(_item => {
+                    sort.push(hasHistory(_item));
+                })
+                var _test = Object.values(sort).sort((a, b) => {
+                    return new Date(b.date) - new Date(a.date);
+                });
+                sort = _test
+                _data.historySort = {};
+                sort.map(_item => {
+                   Object.entries(_data.history).map(_i => {
+                       if(_i[1].filter(_val => _val == _item).length > 0){
+                           const _obj = {};
+                           _data.historySort[_i[0]] = _i[1]
+                       }
+                   })
+                })
+                Object.entries(_data.historySort).forEach(_element => {
+                    const findSerie = allSeries.find(_item => _item.name == _element[0]);
+                    if(findSerie){
+                        _data.historyFormated.push(findSerie);
                     }
                 })
                 if(props.match.params.name && 
@@ -170,16 +204,7 @@ export default function Homepage(props){
         if(!error){
             return (
                 <Main>
-                    <SizedBox 
-                        width='100%' 
-                        flex='flex' 
-                        flexContent='space-between' 
-                        alignContent='center'
-                        position='absolute'
-                        padding='1%'
-                        >
-                        <Img Img={Logo} width='30vh' />
-                    </SizedBox>
+                    <Menu absolute={true}></Menu>
                     <HeroImage image={data.randomSerie.image.banner}>
                         <Link to='' onClick={()=>{
                                     setModalSerie(data.randomSerie.name);
@@ -256,6 +281,16 @@ export default function Homepage(props){
                                                         <div>
                                                             <PlayCircleFilledWhiteOutlinedIcon/>
                                                             <h4>{`T${hasHistory(_value.name).season} E${hasHistory(_value.name).episode}`}</h4>
+                                                            <SizedBox 
+                                                                width='100%'
+                                                                height='3px'
+                                                                backgroundColor='#575757'
+                                                            ></SizedBox>
+                                                            <SizedBox 
+                                                                width={`${progressBar(_value.name)}%`}
+                                                                height='3px'
+                                                                backgroundColor='red'
+                                                            ></SizedBox>
                                                         </div> : <></>}
                                                     </Card>
                                                 </Link>

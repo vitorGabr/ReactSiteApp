@@ -16,6 +16,7 @@ import ProgressBar from './progressBar';
 import { makeStyles } from '@material-ui/core/styles';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
+import ImgNotFound from '../../img/not-found.png';
 
 const useStyles = makeStyles((theme) => ({
     formControl: {
@@ -105,7 +106,9 @@ const format = (seconds) => {
         if(_formatPt.overview.length != 0){
             return _formatPt;
         }
-        _formatPt.overview = _episode.summary.replace('<p>','').replace('</p>','');
+        if(_episode.summary){
+            _formatPt.overview = _episode.summary.replace('<p>','').replace('</p>','');
+        }
         return _formatPt;
     }
 
@@ -282,7 +285,7 @@ const format = (seconds) => {
                                 className={`${isWatched(_value.season,_value.number)?'isWatched':''}`}
                             >
                                 <div>
-                                    <img src={checkIsEmpty(_value,_value.image)} />
+                                    <img src={_value.image != null ? checkIsEmpty(_value,_value.image) : ImgNotFound} />
                                     {
                                         isWatched(_value.season,_value.number) ?
                                             <EpisodeProgress value={progressBar(_value.season,_value.number)} />

@@ -47,6 +47,21 @@ export default new class Firebase{
         return _data;
     }
 
+    async searchSeries(_nameSerie){
+        let _data = []
+        const searchInput = _nameSerie.toString().toLowerCase();
+        await app.firestore().collection('series')
+        .orderBy('name')
+        .startAt(searchInput)
+        .endAt(searchInput + '\uf8ff')
+        .get().then((snapshot)=>{
+            snapshot.forEach(e=>{
+                _data.push(e.data());
+            })
+        })
+        return _data;
+    }
+
     setSeasons(_nameSerie,_data){
         app.firestore().collection('series')
         .doc(_nameSerie)

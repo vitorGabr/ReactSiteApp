@@ -15,6 +15,7 @@ export const SizedBox = styled.div`
     width: ${props => `${props.width}`};
     height: ${props => `${props.height}`};
     color:white;
+    background-color:${props => `${props.backgroundColor}`};
     display:${props => `${props.flex}`};
     justify-content:${props => `${props.flexContent}`};
     align-items:${props => `${props.alignContent}`};
@@ -28,17 +29,24 @@ export const SizedBox = styled.div`
 `;
 export const PlayerBack = styled(SizedBox)`
     display:flex;
-    padding:0vh 3%;
+    padding:0vh 1%;
+    @media(max-width:600px){
+        margin-top:2vh;
+        padding-left: 2vh;
+    }
     text-decoration:none;
     display:flex;
     align-items:center;
     a{
         display:flex;
-        align-items:center;
+        align-items:flex-end;
         border:none;
         text-decoration:none;
         margin-right:2%;
         color:white;
+        span{
+            margin-right:4%;
+        }
     }
 `;
 export const ModalInfo = styled(SizedBox)`
@@ -210,13 +218,6 @@ export const SeriesBox = styled.div`
     padding-left: 2%;
     
 `;
-// export const LogoTitle = styled.img`
-//     top:2%;
-//     left:2%;
-//     position: absolute;
-//     font-size: 30px;
-//     color:red;
-// `;
 
 export const Img = styled.img.attrs(props => ({
     src: props.Img,
@@ -237,6 +238,7 @@ export const LogoTitle = styled.img.attrs(props => ({
 export const Title = styled.h2`
     font-size: ${props => props.size ?? '1.2rem'};
     font-weight: ${props => props.weight ?? 'normal'};
+    text-transform: ${props => props.textTransform};
     color:${props => props.color ?? 'white'};
 `;
 export const Center = styled.div`
@@ -254,7 +256,7 @@ export const Card = styled.div`
     @media(max-width: 990px) {
         height:23vh;
     }
-    div{
+    > div{
         font-size:1rem;
         top:0;
         height:100%;
@@ -273,11 +275,18 @@ export const Card = styled.div`
         svg{
             font-size:3rem;
         }
-        h4{
+        ${SizedBox}{
             position:absolute;
             bottom:0;
+            left:0;
+            border-radius: 10px
+        }
+        h4{
+            position:absolute;
+            bottom:1vh;
             font-weight:bold;
         }
+        
     }
     img{
             height: 100%;
@@ -388,5 +397,38 @@ export const PlayerContent = styled(Main)`
             }
             height:70vh !important;
         }
+    }
+`
+export const CardView = styled.div`
+    width: 100%;
+    margin:2vh;
+    @media(max-width: 600px){
+        margin:0.5vh;
+    }
+    cursor: pointer;
+    img{
+        height: 100%;
+        object-fit: cover;
+        width:100%;
+        border-radius: 5px;
+    }
+    &:hover{
+        img{
+            border:solid white;
+        }
+    }
+    
+`
+export const Input = styled.input`
+    outline:none;
+    background-color:transparent;
+    border:none;
+    color: white;
+    height:100%;
+    font-size:1.2rem;
+    font-weight:bold;
+    ::placeholder {
+        color: white;
+        font-weight:bold;
     }
 `

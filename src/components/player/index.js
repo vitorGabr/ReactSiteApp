@@ -284,7 +284,7 @@ export default function Player(props){
                         <span className="material-icons">
                             arrow_back
                         </span>
-                        <Title >Voltar</Title>
+                        <Title weight='bold' size='1.2rem'>Voltar</Title>
                     </Link>
                 </PlayerBack>
                 <SizedBox margin='2vh 0'></SizedBox>
@@ -293,6 +293,7 @@ export default function Player(props){
                         <ReactPlayer
                             ref={ref}
                             playing
+                            muted
                             className='video'
                             onStart = {handleSeek}
                             controls={true}

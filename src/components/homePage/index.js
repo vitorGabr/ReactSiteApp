@@ -92,7 +92,7 @@ export default function Homepage(props){
     const [error,setError] = useState(false);
 
     useEffect(()=>{
-        //firebase.setSeasons('my_wife_and_kids',{episodesDub:chuck});
+        //firebase.setSeasons('house',{episodesDub:chuck});
         const _result = async () => {
             setLoading(true);
             try {

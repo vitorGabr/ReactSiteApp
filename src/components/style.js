@@ -45,7 +45,8 @@ export const PlayerBack = styled(SizedBox)`
         margin-right:2%;
         color:white;
         span{
-            margin-right:4%;
+            font-size:1.5rem;
+            margin-right:3vh;
         }
     }
 `;

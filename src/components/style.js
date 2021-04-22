@@ -223,8 +223,10 @@ export const SeriesBox = styled.div`
 export const Img = styled.img.attrs(props => ({
     src: props.Img,
 }))`
+    border-radius: ${props => props.borderRadius};
     width: ${props => props.width};
     height: ${props => props.height};
+    object-fit:${props => props.objectFit};
 `;
 
 export const LogoTitle = styled.img.attrs(props => ({
@@ -237,6 +239,8 @@ export const LogoTitle = styled.img.attrs(props => ({
 `;
 
 export const Title = styled.h2`
+    -webkit-text-stroke-width: ${props => props.strokeWidth};
+    -webkit-text-stroke-color: black;
     font-size: ${props => props.size ?? '1.2rem'};
     font-weight: ${props => props.weight ?? 'normal'};
     text-transform: ${props => props.textTransform};
@@ -426,6 +430,8 @@ export const Input = styled.input`
     border:none;
     color: white;
     height:100%;
+    width: 100%;
+    text-align:center;
     font-size:1.2rem;
     font-weight:bold;
     ::placeholder {

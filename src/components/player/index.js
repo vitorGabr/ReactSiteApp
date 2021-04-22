@@ -31,8 +31,9 @@ const PurpleSwitch = withStyles({
     },
   })(CircularProgress);
 
-export default function Player(props){
+  
 
+export default function Player(props){
     const [state, setState] = useState({
         legen: false,
       });
@@ -83,10 +84,11 @@ export default function Player(props){
         const _serie = await firebase.getSeries(`${props.match.params.name}`);
         const _episodes = await firebase.getEpisodes(`${props.match.params.name}`);
         if(_serie != null && _serie.length != 0){
+            
             for (let index = 1; index <= _serie.seasons; index++) {
                 params.append_to_response = `${params.append_to_response},season/${index}`;
             }
-            const _rep = await axiosInstance.get(`${_serie.id}`,{params});
+            const _rep = await axiosInstance.get(`tv/${_serie.id}`,{params});
             let seasonsFormatedPt = [];
             for (let index = 1; index <= _serie.seasons; index++) {
                 seasonsFormatedPt.push(..._rep.data[`season/${index}`].episodes)
@@ -120,6 +122,7 @@ export default function Player(props){
                 .filter(_ep => _ep.season_number == season)
                 .find(_val => _val.episode_number == episode);
                 if(_episode){
+                   
                     const indexOf = seasonsFormated.indexOf(_episode);
                     var isLegen = false;
                     try {
@@ -129,6 +132,7 @@ export default function Player(props){
                     }
                     setDisable(false);
                     setState({legen:isLegen})
+                    console.log(_data.episodes)
                     if(_data.episodes.episodesLegen){
                         _data.episode =_data.episodes.episodesLegen[indexOf];
                         if(!_data.episode){
@@ -143,6 +147,7 @@ export default function Player(props){
                         setState({legen:false})
                         _data.episode = _data.episodes.episodesDub[indexOf];
                     }
+                    
                     _data.episodeComplete = _episode;
                     _data.currentEp = episode;
                     _data.currentSeason = season;
@@ -159,6 +164,7 @@ export default function Player(props){
                         saveInLocalStorage(season,episode,0,100)
                     }
                     setData({..._data});
+                   
                 }else{
                     throw 'error'
                   }
@@ -293,9 +299,9 @@ export default function Player(props){
                         <ReactPlayer
                             ref={ref}
                             playing
-                            muted
                             className='video'
                             onStart = {handleSeek}
+                            onError={(e) => console.log('onError', e)}
                             controls={true}
                             width='98%'
                             height="450px"  

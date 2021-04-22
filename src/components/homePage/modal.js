@@ -17,6 +17,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import ImgNotFound from '../../img/not-found.png';
+import Movie from './modal/movie';
 
 const useStyles = makeStyles((theme) => ({
     formControl: {
@@ -71,6 +72,7 @@ const format = (seconds) => {
     const [data,setData] = useState({seasonSelected: 1});
     const [loading,setLoading] = useState(true);
     const [error,setError] = useState(false);
+    const [isMovie,setIsMovie] = useState(false);
     const classes = useStyles();
 
     function handleData(_data){
@@ -135,49 +137,52 @@ const format = (seconds) => {
     useEffect(()=>{
         let params = {
             api_key: process.env.REACT_APP_API_KEY,
-            append_to_response: '',
+            append_to_response: 'credits',
             language: 'pt-br'
         }
         const _result = async () => {
             setLoading(true);
             setError(true);
+            setIsMovie(false);
             try {
                 const _serie = await firebase.getSeries(`${name}`);
-                const _episodes = await firebase.getEpisodes(`${name}`);
-                if(_serie != null && _serie.length != 0){
+                if(_serie != null && Object.keys(_serie).length != 0){
                     for (let index = 1; index <= _serie.seasons; index++) {
                         params.append_to_response = `${params.append_to_response},season/${index}`;
                     }
-                    const _rep = await axiosInstance.get(`${_serie.id}`,{params});
+                    const _rep = await axiosInstance.get(`tv/${_serie.id}`,{params});
                     let seasonsFormatedPt = [];
                     for (let index = 1; index <= _serie.seasons; index++) {
                         seasonsFormatedPt.push(..._rep.data[`season/${index}`].episodes)
                     }
-                    const response = await api.get(`${_serie.idMaze}?embed=episodes`);
                     let data = {};
-                    let seasons = new Set(response.data._embedded.episodes.map(item => item.season))
-                    let seasonsFormated = response.data._embedded.episodes;
+                    let seasons = new Set(seasonsFormatedPt.map(item => item.season_number))
                     data.seasonsFormatedPt = seasonsFormatedPt;
-                    data.seasonsFormated = seasonsFormated;
-                    data.seasons = Array.from(seasons);
                     data.serie = _serie;
+                    data.seasons = Array.from(seasons);
                     const _hasHistory = hasHistory(name);
                     if(_hasHistory){
-                        data.seasonCurrent = seasonsFormated
-                            .filter(_episode => _episode.season == _hasHistory.season)
-                            .find((_item)=>_item.number == _hasHistory.episode)
                         data.seasonCurrentPt = seasonsFormatedPt
                         .filter(_episode => _episode.season_number == _hasHistory.season)
                         .find((_item)=>_item.episode_number == _hasHistory.episode);
                     }else{
-                        data.seasonCurrent = seasonsFormated[0]
                         data.seasonCurrentPt = seasonsFormatedPt[0]
                     }
-                    data.seasonCurrent.summary = data.seasonCurrent.summary.replace('<p>','').replace('</p>','');
                     handleData(data);
                     setError(false);
                 }else{
-                    throw 'error'
+                    if(name){
+                        const _rep = await axiosInstance.get(`movie/${name}`,{params});
+                        if(_rep != null && Object.keys(_rep.data).length != 0){
+                            let _data = data;
+                            _data.seasonCurrentPt = _rep.data;
+                            _data.seasonCurrent = _rep.data;
+                            handleData(_data);
+                            setIsMovie(true);
+                            setError(false);
+                        }
+                    }
+                    
                 }
             } catch (error) {
                 setError(true);
@@ -191,8 +196,6 @@ const format = (seconds) => {
 
     if(!loading){
         if(!error){
-          const {seasonsFormated} = data;
-          
           return(
             <Modal 
                 open={open} 
@@ -205,103 +208,109 @@ const format = (seconds) => {
                     modal: 'customModal',
                 }}
                 >
-                <ModalHero image={`https://www.themoviedb.org/t/p/original${data.seasonCurrentPt.still_path}`}>
-                    <SizedBox 
-                        flex='flex' 
-                        flexDirection='column'
-                        position= 'absolute'
-                        alignContent='flex-start'
-                        flexContent='center'
-                        padding='0 2%'
-                        >
-                        <SizedBox width='30vh'>
-                            <img src={data.serie.image.logo}></img>
-                        </SizedBox>
-                        {
-                            isWatched(data.seasonCurrent.season,data.seasonCurrent.number) ?
+                    {
+                        isMovie ? <Movie history={history} seasonCurrentPt={data.seasonCurrentPt}></Movie>:
+                        <>
+                            <ModalHero image={`https://www.themoviedb.org/t/p/original${data.seasonCurrentPt.still_path}`}>
                                 <SizedBox 
                                     flex='flex' 
-                                    width='100%' 
-                                    alignContent='center' 
-                                    flexContent='flex-start'
+                                    flexDirection='column'
+                                    position= 'absolute'
+                                    alignContent='flex-start'
+                                    flexContent='center'
+                                    padding='0 2%'
                                     >
-                                    <ProgressBar completed= {progressBar(data.seasonCurrent.season,data.seasonCurrent.number)} />
-                                    <Title color='#e8e8e8' size='1rem' weight='bold'>{`${format(
-                                            isWatched(data.seasonCurrent.season,data.seasonCurrent.number).time
-                                    )} de ${format(
-                                        isWatched(data.seasonCurrent.season,data.seasonCurrent.number).duration
-                                )}`}</Title>
-                                </SizedBox>
-                            :
-                            <div></div>
-
-                        }
-                        <SizedBox height='1vh' />
-                        <ButtonGroup variant="contained"aria-label="contained primary button group">
-                            <Button onClick={()=>{
-                                history.push({pathname:`${name}/${data.seasonCurrent.season}x${data.seasonCurrent.number}`})
-                            }}>
-                                <PlayArrowOutlinedIcon fontSize="default" />
-                                Assistir
-                            </Button>
-                        </ButtonGroup>
-                    </SizedBox>
-
-                </ModalHero>
-                <ModalEpisodioAtual></ModalEpisodioAtual>
-                <ModalInfo>
-                    <h3>{`T${data.seasonCurrent.season} E${data.seasonCurrent.number}. ${data.seasonCurrentPt.name}`}</h3>
-                    <p>{data.seasonCurrentPt.overview}</p>
-                </ModalInfo>
-                <ModalEpisodes>
-                    <SizedBox flex='flex' flexContent='space-between'>
-                        <h2>Episodios</h2>
-                        <Select
-                            labelId="demo-simple-select-label"
-                            id="demo-simple-select"
-                            inputProps={{
-                                classes: {
-                                    icon: classes.icon,
-                                },
-                            }}
-                            className={classes.select}
-                            value={data.seasonSelected}
-                            onChange={handleChange}
-                            >
-                                {
-                                    data.seasons
-                                    .map((_value)=>(
-                                        <MenuItem key={_value} value={_value}>{`${_value}º Temporada`}</MenuItem>
-                                    ))
-                                }
-                            </Select>
-                    </SizedBox>
-                    <hr></hr>
-                    {
-                        seasonsFormated.
-                        filter(_episode => _episode.season == data.seasonSelected)
-                        .map((_value)=>(
-                            <Link key={Math.random()} to={{pathname:`${name}/${_value.season}x${_value.number}`}}
-                                className={`${isWatched(_value.season,_value.number)?'isWatched':''}`}
-                            >
-                                <div>
-                                    <img src={_value.image != null ? checkIsEmpty(_value,_value.image) : ImgNotFound} />
+                                    <SizedBox width='30vh'>
+                                        <img src={data.serie.image.logo}></img>
+                                    </SizedBox>
                                     {
-                                        isWatched(_value.season,_value.number) ?
-                                            <EpisodeProgress value={progressBar(_value.season,_value.number)} />
+                                        isWatched(data.seasonCurrentPt.season_number,data.seasonCurrentPt.episode_number) ?
+                                            <SizedBox 
+                                                flex='flex' 
+                                                width='100%' 
+                                                alignContent='center' 
+                                                flexContent='flex-start'
+                                                >
+                                                <ProgressBar completed= {progressBar(data.seasonCurrentPt.season_number,data.seasonCurrentPt.episode_number)} />
+                                                <Title color='#e8e8e8' size='1rem' weight='bold'>{`${format(
+                                                        isWatched(data.seasonCurrentPt.season_number,data.seasonCurrentPt.episode_number).time
+                                                )} de ${format(
+                                                    isWatched(data.seasonCurrentPt.season_number,data.seasonCurrentPt.episode_number).duration
+                                            )}`}</Title>
+                                            </SizedBox>
                                         :
                                         <div></div>
 
                                     }
-                                </div>
-                                <h4>{`${_value.number}. ${transformSeasonsInLanguagePt(_value).name}`}</h4>
-                                <SizedBox weight='bold' margin='1% 0'>
-                                    <p>{transformSeasonsInLanguagePt(_value).overview}</p>
+                                    <SizedBox height='1vh' />
+                                    <ButtonGroup variant="contained"aria-label="contained primary button group">
+                                        <Button onClick={()=>{
+                                            history.push({pathname:`${name}/${data.seasonCurrentPt.season_number}x${data.seasonCurrentPt.episode_number}`})
+                                        }}>
+                                            <PlayArrowOutlinedIcon fontSize="default" />
+                                            Assistir
+                                        </Button>
+                                    </ButtonGroup>
                                 </SizedBox>
-                            </Link>
-                        ))
+
+                            </ModalHero>
+                            <ModalEpisodioAtual></ModalEpisodioAtual>
+                            <ModalInfo>
+                                <h3>{`T${data.seasonCurrentPt.season_number} E${data.seasonCurrentPt.episode_number}. ${data.seasonCurrentPt.name}`}</h3>
+                                <p>{data.seasonCurrentPt.overview}</p>
+                            </ModalInfo>
+                            <ModalEpisodes>
+                                <SizedBox flex='flex' flexContent='space-between'>
+                                    <h2>Episodios</h2>
+                                    <Select
+                                        labelId="demo-simple-select-label"
+                                        id="demo-simple-select"
+                                        inputProps={{
+                                            classes: {
+                                                icon: classes.icon,
+                                            },
+                                        }}
+                                        className={classes.select}
+                                        value={data.seasonSelected}
+                                        onChange={handleChange}
+                                        >
+                                            {
+                                                data.seasons
+                                                .map((_value)=>(
+                                                    <MenuItem key={_value} value={_value}>{`${_value}º Temporada`}</MenuItem>
+                                                ))
+                                            }
+                                        </Select>
+                                </SizedBox>
+                                <hr></hr>
+                                {
+                                    data.seasonsFormatedPt.
+                                    filter(_episode => _episode.season_number == data.seasonSelected)
+                                    .map((_value)=>(
+                                        <Link key={Math.random()} to={{pathname:`${name}/${_value.season_number}x${_value.episode_number}`}}
+                                            className={`${isWatched(_value.season_number,_value.episode_number)?'isWatched':''}`}
+                                        >
+                                            <div>
+                                                <img src={_value.still_path != null ? `https://www.themoviedb.org/t/p/original${_value.still_path}` : ImgNotFound} />
+                                                {
+                                                    isWatched(_value.season_number,_value.episode_number) ?
+                                                        <EpisodeProgress value={progressBar(_value.season_number,_value.episode_number)} />
+                                                    :
+                                                    <div></div>
+
+                                                }
+                                            </div>
+                                            <h4>{`${_value.episode_number}. ${_value.name}`}</h4>
+                                            <SizedBox weight='bold' margin='1% 0'>
+                                                <p>{_value.overview.length != 0 ? _value.overview: 'Descrição indisponível no momento.'}</p>
+                                            </SizedBox>
+                                        </Link>
+                                    ))
+                                }
+                            </ModalEpisodes>
+                        </>
                     }
-                </ModalEpisodes>
+                
             </Modal>
         );
         }else{

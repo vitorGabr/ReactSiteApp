@@ -17,11 +17,9 @@ export default new class Firebase{
 
     constructor(){
         if(!app.initializeApp.length){
-            try {
-                app.initializeApp(firebaseConfig)
-            } catch (err) {
-                console.log(err)
-            }
+            app.initializeApp(firebaseConfig);
+        }else{
+            app();
         }
     }
 
@@ -36,12 +34,38 @@ export default new class Firebase{
         return _data;
     }
 
-    async getSeries(_nameSerie){
+    async getExceptions(){
+        let _data = [];
+        await app.firestore().collection('exceptions')
+        .get().then((snapshot)=>{
+            snapshot.forEach(e=>{
+                _data.push(e.data());
+            })
+        })
+        return _data;
+    }
+
+    async getSeries(_idSerie){
         let _data = {}
         await app.firestore().collection('series')
-        .doc(_nameSerie)
+        .where("id","==",parseInt(_idSerie))
         .get().then((snapshot)=>{
-            _data = snapshot.data()
+            snapshot.forEach(e=>{
+                _data = e.data();
+            })
+        })
+        
+        return _data;
+    }
+
+    async getSeriesGenre(_genreSerie){
+        let _data = []
+        await app.firestore().collection('series')
+        .where("genre","array-contains",_genreSerie.toLowerCase())
+        .get().then((snapshot)=>{
+            snapshot.forEach(e=>{
+                _data.push(e.data());
+            })
         })
         
         return _data;
@@ -70,6 +94,12 @@ export default new class Firebase{
         .set(_data, { merge: true })   
     }
 
+    async setExceptions(_id){
+        app.firestore().collection('exceptions')
+        .doc(_id.toString())
+        .set({id:_id})   
+    }
+
     updateSeasons(_nameSerie,_data){
         app.firestore().collection('series')
         .doc(_nameSerie)
@@ -78,17 +108,23 @@ export default new class Firebase{
         .update({episodesDub: app.firestore.FieldValue.arrayUnion(..._data)})   
     }
 
-    async getEpisodes(_nameSerie){
+    async getEpisodes(_idSerie){
         let _data = [];
         await app.firestore().collection('series')
-        .doc(_nameSerie)
-        .collection('episodes')
+        .where("id","==",parseInt(_idSerie))
         .get().then(async (snapshot)=> {
-            let _listSnapshot = [];
-            snapshot.forEach(_onValue => {
-                _listSnapshot.push(_onValue.data())
-            });
-            _data.push(..._listSnapshot);
+            let ref;
+            snapshot.forEach(e=>{
+                ref = e.ref.collection('episodes');
+            })  
+            await ref.get().then((_result)=>{
+                let _listSnapshot = [];
+                _result.forEach(_onValue => {
+                    _listSnapshot.push(_onValue.data())
+                });
+                
+                _data.push(..._listSnapshot);
+            })
             
         })
         return _data[0];

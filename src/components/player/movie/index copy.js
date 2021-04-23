@@ -31,7 +31,7 @@ const PurpleSwitch = withStyles({
     },
   })(CircularProgress);
 
-export default function PlayeraaaaaaaaaaaaaaaaaMovie(props){
+export default function PlayerMovie(props){
 
     const [state, setState] = useState({
         legen: false,

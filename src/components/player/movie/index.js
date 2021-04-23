@@ -79,8 +79,9 @@ export default function PlayerMovie(props){
             api_key: process.env.REACT_APP_API_KEY,
             language: 'pt-br'
         }
-        
         const _rep = await axiosInstance.get(`movie/${props.match.params.name}`,{params});
+        console.log('asdasd');
+        
         if(_rep != null && Object.keys(_rep.data).length != 0){
             let _data = data;
             _data.movie = _rep.data;

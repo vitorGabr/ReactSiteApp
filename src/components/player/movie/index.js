@@ -214,6 +214,36 @@ export default function PlayerMovie(props){
           return(
             <PlayerContent>
                 <PlayerBack>
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
                     <Link to={`/${props.match.params.name}`}>
                         <span className="material-icons">
                             arrow_back

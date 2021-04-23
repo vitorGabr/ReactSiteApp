@@ -74,23 +74,7 @@ export default function PlayerMovie(props){
         
       },[]);
 
-    const _result = async () => {
-        let params = {
-            api_key: process.env.REACT_APP_API_KEY,
-            language: 'pt-br'
-        }
-        const _rep = await axiosInstance.get(`movie/${props.match.params.name}`,{params});
-        console.log('asdasd');
-        
-        if(_rep != null && Object.keys(_rep.data).length != 0){
-            let _data = data;
-            _data.movie = _rep.data;
-            setData({..._data});
-            getMovie(props.match.params.name,{...data,..._data})
-        }else{
-            throw 'err';
-        }
-    }
+    
 
     function getMovie(id = props.match.params.name,_value){
         var _data = _value ?? data;

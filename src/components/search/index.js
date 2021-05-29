@@ -53,8 +53,8 @@ export default function Search(props){
                     }
                     var d = new Date();
                     _response.data.results = _response.data.results.filter(_item => 
-                        _item.release_date <= 
-                        `${d.getFullYear()}-${zeroPad(d.getMonth(),2)}-${zeroPad(d.getDay(),2)}`);
+                        new Date(_item.release_date).getTime() <= 
+                        d.getTime());
                     _response.data.results.push(...searchSeries);
                     _response.data.results = _response.data.results.filter(_item => {
                         if(!exceptions.find(_i => _i.id == _item.id)){
